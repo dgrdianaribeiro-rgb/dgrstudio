@@ -1,0 +1,19 @@
+{
+  "name": "dgr-studio",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.8.2",
+    "html-to-image": "1.11.13",
+    "jszip": "3.10.2",
+    "lucide-react": "1.66.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}
