@@ -4,7 +4,8 @@ import { ImagePlus, LoaderCircle, Plus, Trash2, Users, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { PALETTE_KEYS, PALETTE_PRESETS, TEXTURES, newClient, newPage } from '@/lib/catalog';
 import { isHex } from '@/lib/color';
-import { FONTS, customFamilies, ensureFontLink, fontSpec, loadAllFontsForPicker } from '@/lib/fonts';
+import { ensureFontLink, fontSpec } from '@/lib/fonts';
+import FontPicker from './FontPicker';
 import Stage, { fileUrl } from './Stage';
 import { Chips, Modal } from './ui';
 
@@ -29,7 +30,6 @@ export default function ClientsModal({ clients, currentId, onClose, onSaved, onD
   const [busy, setBusy] = useState(false);
   const isNew = !clients.some((c) => c.id === editing.id);
 
-  useEffect(() => { loadAllFontsForPicker(); }, []);
   useEffect(() => { ensureFontLink([editing.fonts.heading, editing.fonts.body], 'client-preview-fonts'); }, [editing.fonts.heading, editing.fonts.body]);
   useEffect(() => {
     if (logoPicked) setEditing((e) => ({ ...e, logo: logoPicked.path }));
@@ -126,30 +126,8 @@ export default function ClientsModal({ clients, currentId, onClose, onSaved, onD
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 110px', gap: 12, marginTop: 10 }}>
-            <label className="field"><span>Fonte dos títulos</span>
-              <select className="select" value={editing.fonts.heading} style={{ fontFamily: `'${editing.fonts.heading}'` }} onChange={(e) => set({ fonts: { ...editing.fonts, heading: e.target.value } })}>
-                {customFamilies().length > 0 && (
-                  <optgroup label="Suas fontes">
-                    {customFamilies().map((f) => <option key={'c' + f.name} value={f.name} style={{ fontFamily: `'${f.name}'` }}>{f.name}</option>)}
-                  </optgroup>
-                )}
-                <optgroup label="Google Fonts">
-                  {FONTS.map((f) => <option key={f.name} value={f.name} style={{ fontFamily: `'${f.name}'` }}>{f.name}</option>)}
-                </optgroup>
-              </select>
-            </label>
-            <label className="field"><span>Fonte dos textos</span>
-              <select className="select" value={editing.fonts.body} style={{ fontFamily: `'${editing.fonts.body}'` }} onChange={(e) => set({ fonts: { ...editing.fonts, body: e.target.value } })}>
-                {customFamilies().length > 0 && (
-                  <optgroup label="Suas fontes">
-                    {customFamilies().map((f) => <option key={'c' + f.name} value={f.name}>{f.name}</option>)}
-                  </optgroup>
-                )}
-                <optgroup label="Google Fonts">
-                  {FONTS.filter((f) => f.cat !== 'display').map((f) => <option key={f.name} value={f.name}>{f.name}</option>)}
-                </optgroup>
-              </select>
-            </label>
+            <FontPicker id="heading" label="Fonte dos títulos" value={editing.fonts.heading} onChange={(v) => set({ fonts: { ...editing.fonts, heading: v } })} />
+            <FontPicker id="body" label="Fonte dos textos" value={editing.fonts.body} onChange={(v) => set({ fonts: { ...editing.fonts, body: v } })} />
             <label className="field"><span>Peso</span>
               <select className="select" value={editing.headingWeight} onChange={(e) => set({ headingWeight: Number(e.target.value) })}>
                 {headingWeights.map((w) => <option key={w} value={w}>{w}</option>)}

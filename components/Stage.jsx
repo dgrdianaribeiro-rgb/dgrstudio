@@ -135,7 +135,7 @@ function Kicker({ v, ctx }) {
 }
 
 function headingStyle(ctx, size) {
-  const display = fontSpec(ctx.client.fonts.heading).cat === 'display';
+  const display = Boolean(fontSpec(ctx.client.fonts.heading).upper);
   return {
     fontFamily: ctx.fontH, fontWeight: ctx.weightH, fontSize: size,
     lineHeight: display ? 0.98 : 1.04, letterSpacing: display ? '0.005em' : '-0.022em',

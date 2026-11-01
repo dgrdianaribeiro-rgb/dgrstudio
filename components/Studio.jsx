@@ -12,7 +12,7 @@ import {
   BACKGROUNDS, FLOWS, HIGHLIGHTS, LAYOUTS, MAX_PAGES, PAGE_H, PAGE_W, PRESETS, TEXTURES,
   defaultBgFor, layoutById, newPage, newPost, presetLayouts, uid,
 } from '@/lib/catalog';
-import { ensureFontLink, getFontEmbedCSS, onCustomFonts, setCustomFonts, waitForFamilies } from '@/lib/fonts';
+import { ensureFontLink, getFontEmbedCSS, loadGoogleCatalog, onCustomFonts, setCustomFonts, waitForFamilies } from '@/lib/fonts';
 import { downloadBlob, renderPages, renderStrip, slugify, waitForImages, zipPages } from '@/lib/exporter';
 import Stage, { fileUrl } from './Stage';
 import ClientsModal from './ClientsModal';
@@ -53,11 +53,13 @@ export default function Studio({ aiEnabled, onLogout }) {
 
   const client = useMemo(() => clients?.find((c) => c.id === clientId) || null, [clients, clientId]);
   const [, setFontsVersion] = useState(0);
+  const [catalogReady, setCatalogReady] = useState(false);
 
   /* ---------- uploaded fonts ---------- */
   useEffect(() => {
     const off = onCustomFonts(() => setFontsVersion((v) => v + 1));
     api.fonts().then(setCustomFonts).catch(() => {});
+    loadGoogleCatalog().catch(() => {}).finally(() => setCatalogReady(true));
     return off;
   }, []);
 
@@ -341,7 +343,7 @@ export default function Studio({ aiEnabled, onLogout }) {
   /* ---------- modals helpers ---------- */
   const openPicker = (onPick, forClient = client) => setPicker({ onPick, client: forClient });
 
-  if (!clients) {
+  if (!clients || !catalogReady) {
     return <div className="gate"><LoaderCircle className="spin" /></div>;
   }
 
