@@ -12,7 +12,7 @@ import {
   BACKGROUNDS, FLOWS, HIGHLIGHTS, LAYOUTS, MAX_PAGES, PAGE_H, PAGE_W, PRESETS, TEXTURES,
   defaultBgFor, layoutById, newPage, newPost, presetLayouts, uid,
 } from '@/lib/catalog';
-import { ensureFontLink, getFontEmbedCSS, loadGoogleCatalog, onCustomFonts, setCustomFonts, waitForFamilies } from '@/lib/fonts';
+import { ensureFontLink, getFontEmbedCSS, loadFontshareCatalog, loadGoogleCatalog, onCustomFonts, setCustomFonts, waitForFamilies } from '@/lib/fonts';
 import { downloadBlob, renderPages, renderStrip, slugify, waitForImages, zipPages } from '@/lib/exporter';
 import Stage, { fileUrl } from './Stage';
 import ClientsModal from './ClientsModal';
@@ -59,7 +59,7 @@ export default function Studio({ aiEnabled, onLogout }) {
   useEffect(() => {
     const off = onCustomFonts(() => setFontsVersion((v) => v + 1));
     api.fonts().then(setCustomFonts).catch(() => {});
-    loadGoogleCatalog().catch(() => {}).finally(() => setCatalogReady(true));
+    Promise.allSettled([loadGoogleCatalog(), loadFontshareCatalog()]).finally(() => setCatalogReady(true));
     return off;
   }, []);
 

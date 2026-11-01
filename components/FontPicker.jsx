@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, ChevronDown, Search } from 'lucide-react';
-import { CATEGORIES, CANVA_POPULAR, fontSpec, previewFonts, searchFonts } from '@/lib/fonts';
+import { CATEGORIES, CANVA_POPULAR, SOURCE_LABEL, fontSpec, previewFonts, searchFonts } from '@/lib/fonts';
 
 const CAT_LABEL = { sans: 'Sem serifa', serif: 'Serifada', display: 'Display', script: 'Manuscrita', mono: 'Monoespaçada' };
 
@@ -34,14 +34,14 @@ export default function FontPicker({ value, onChange, label, id }) {
       <span>{label}</span>
       <button type="button" className="select font-trigger" onClick={() => setOpen((o) => !o)}>
         <span style={{ fontFamily: `'${value}'`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
-        <small className="hint" style={{ marginLeft: 'auto' }}>{spec.custom ? 'sua fonte' : CANVA_POPULAR.includes(value) ? 'Canva' : ''}</small>
+        <small className="hint" style={{ marginLeft: 'auto' }}>{spec.custom ? 'sua fonte' : SOURCE_LABEL[spec.source] || (CANVA_POPULAR.includes(value) ? 'Canva' : '')}</small>
         <ChevronDown size={14} style={{ flex: '0 0 auto', color: 'var(--muted)' }} />
       </button>
       {open && (
         <div className="font-pop">
           <div className="font-search">
             <Search size={15} />
-            <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar entre +1.800 fontes…" onKeyDown={(e) => e.key === 'Escape' && setOpen(false)} />
+            <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar entre +2.000 fontes…" onKeyDown={(e) => e.key === 'Escape' && setOpen(false)} />
           </div>
           <div className="chips" style={{ padding: '8px 10px', borderBottom: '1px solid var(--line)' }}>
             {CATEGORIES.map((c) => (
@@ -57,7 +57,7 @@ export default function FontPicker({ value, onChange, label, id }) {
             {results.map((f) => (
               <button key={f.name} type="button" className={'font-item' + (f.name === value ? ' on' : '')} onClick={() => { onChange(f.name); setOpen(false); setQ(''); }}>
                 <span style={{ fontFamily: `'${f.name}'`, fontSize: 18 }}>{f.name}</span>
-                <small>{f.source === 'mine' ? 'Sua fonte' : CAT_LABEL[f.cat] || ''}{f.w.length > 1 ? ` · ${f.w.length} pesos` : ''}</small>
+                <small>{SOURCE_LABEL[f.source] ? `${SOURCE_LABEL[f.source]} · ` : ''}{CAT_LABEL[f.cat] || ''}{f.w.length > 1 ? ` · ${f.w.length} pesos` : ''}</small>
                 {f.name === value && <Check size={15} style={{ color: 'var(--accent)' }} />}
               </button>
             ))}
