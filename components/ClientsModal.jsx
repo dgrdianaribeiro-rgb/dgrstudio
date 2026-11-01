@@ -4,7 +4,7 @@ import { ImagePlus, LoaderCircle, Plus, Trash2, Users, X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { PALETTE_KEYS, PALETTE_PRESETS, TEXTURES, newClient, newPage } from '@/lib/catalog';
 import { isHex } from '@/lib/color';
-import { FONTS, ensureFontLink, fontSpec, loadAllFontsForPicker } from '@/lib/fonts';
+import { FONTS, customFamilies, ensureFontLink, fontSpec, loadAllFontsForPicker } from '@/lib/fonts';
 import Stage, { fileUrl } from './Stage';
 import { Chips, Modal } from './ui';
 
@@ -128,12 +128,26 @@ export default function ClientsModal({ clients, currentId, onClose, onSaved, onD
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 110px', gap: 12, marginTop: 10 }}>
             <label className="field"><span>Fonte dos títulos</span>
               <select className="select" value={editing.fonts.heading} style={{ fontFamily: `'${editing.fonts.heading}'` }} onChange={(e) => set({ fonts: { ...editing.fonts, heading: e.target.value } })}>
-                {FONTS.map((f) => <option key={f.name} value={f.name} style={{ fontFamily: `'${f.name}'` }}>{f.name}</option>)}
+                {customFamilies().length > 0 && (
+                  <optgroup label="Suas fontes">
+                    {customFamilies().map((f) => <option key={'c' + f.name} value={f.name} style={{ fontFamily: `'${f.name}'` }}>{f.name}</option>)}
+                  </optgroup>
+                )}
+                <optgroup label="Google Fonts">
+                  {FONTS.map((f) => <option key={f.name} value={f.name} style={{ fontFamily: `'${f.name}'` }}>{f.name}</option>)}
+                </optgroup>
               </select>
             </label>
             <label className="field"><span>Fonte dos textos</span>
               <select className="select" value={editing.fonts.body} style={{ fontFamily: `'${editing.fonts.body}'` }} onChange={(e) => set({ fonts: { ...editing.fonts, body: e.target.value } })}>
-                {FONTS.filter((f) => f.cat !== 'display').map((f) => <option key={f.name} value={f.name}>{f.name}</option>)}
+                {customFamilies().length > 0 && (
+                  <optgroup label="Suas fontes">
+                    {customFamilies().map((f) => <option key={'c' + f.name} value={f.name}>{f.name}</option>)}
+                  </optgroup>
+                )}
+                <optgroup label="Google Fonts">
+                  {FONTS.filter((f) => f.cat !== 'display').map((f) => <option key={f.name} value={f.name}>{f.name}</option>)}
+                </optgroup>
               </select>
             </label>
             <label className="field"><span>Peso</span>

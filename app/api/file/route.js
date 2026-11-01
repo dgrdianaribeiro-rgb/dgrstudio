@@ -7,7 +7,7 @@ export async function GET(req) {
   const blocked = guard(req);
   if (blocked) return blocked;
   const p = new URL(req.url).searchParams.get('p');
-  if (!p || !/^assets\/[a-z0-9-]+\/[^/]+$/i.test(p)) {
+  if (!p || !/^(assets\/[a-z0-9-]+|fonts)\/[^/]+$/i.test(p)) {
     return new Response('Bad request', { status: 400 });
   }
   const result = await getStream(p).catch(() => null);

@@ -5,17 +5,18 @@ import {
   ArrowRight, ChartColumn, ChevronLeft, ChevronRight, Columns2, Copy, Download, Eraser, FilePlus2, FolderOpen,
   GalleryHorizontal, Hash, Image as ImageIcon, ImagePlus, LayoutPanelTop, Library, List, LoaderCircle, LogOut,
   Maximize2, MousePointerClick, Palette, Plus, Quote, RectangleVertical, Save, SlidersHorizontal, Sparkles,
-  Trash2, Type, Undo2, Users, WandSparkles, X, ZoomIn, ZoomOut, AlignLeft as TextIcon,
+  Trash2, Type, Undo2, Users, CaseSensitive, WandSparkles, X, ZoomIn, ZoomOut, AlignLeft as TextIcon,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import {
   BACKGROUNDS, FLOWS, HIGHLIGHTS, LAYOUTS, MAX_PAGES, PAGE_H, PAGE_W, PRESETS, TEXTURES,
   defaultBgFor, layoutById, newPage, newPost, presetLayouts, uid,
 } from '@/lib/catalog';
-import { ensureFontLink, getFontEmbedCSS } from '@/lib/fonts';
+import { ensureFontLink, getFontEmbedCSS, onCustomFonts, setCustomFonts, waitForFamilies } from '@/lib/fonts';
 import { downloadBlob, renderPages, renderStrip, slugify, waitForImages, zipPages } from '@/lib/exporter';
 import Stage, { fileUrl } from './Stage';
 import ClientsModal from './ClientsModal';
+import FontsModal from './FontsModal';
 import LibraryModal from './LibraryModal';
 import PostsModal from './PostsModal';
 import { Chips, Toggle } from './ui';
@@ -51,6 +52,14 @@ export default function Studio({ aiEnabled, onLogout }) {
   const exportRef = useRef(null);
 
   const client = useMemo(() => clients?.find((c) => c.id === clientId) || null, [clients, clientId]);
+  const [, setFontsVersion] = useState(0);
+
+  /* ---------- uploaded fonts ---------- */
+  useEffect(() => {
+    const off = onCustomFonts(() => setFontsVersion((v) => v + 1));
+    api.fonts().then(setCustomFonts).catch(() => {});
+    return off;
+  }, []);
 
   const toast = useCallback((msg, kind = 'ok') => {
     setToastMsg({ msg, kind, id: Date.now() });
@@ -301,6 +310,7 @@ export default function Studio({ aiEnabled, onLogout }) {
         setBusy('Preparando fontes e imagens…');
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         const node = exportRef.current;
+        await waitForFamilies([client.fonts.heading, client.fonts.body]);
         await document.fonts.ready;
         await waitForImages(node);
         const fontCSS = await getFontEmbedCSS([client.fonts.heading, client.fonts.body]).catch(() => '');
@@ -353,6 +363,7 @@ export default function Studio({ aiEnabled, onLogout }) {
         )}
         <button className="btn" onClick={() => setModal('clients')}><Users size={15} /> Clientes</button>
         {client && <button className="btn" onClick={() => setModal('library')}><Library size={15} /> Biblioteca</button>}
+        <button className="btn" onClick={() => setModal('fonts')}><CaseSensitive size={16} /> Fontes</button>
         {client && <button className="btn" onClick={() => setModal('posts')}><FolderOpen size={15} /> Posts</button>}
         <div className="spacer" />
         {dirty && <span className="dirty">Não salvo</span>}
@@ -698,6 +709,7 @@ export default function Studio({ aiEnabled, onLogout }) {
           }}
         />
       )}
+      {modal === 'fonts' && <FontsModal toast={toast} onClose={() => setModal(null)} />}
       {modal === 'library' && client && <LibraryModal client={client} toast={toast} onClose={() => setModal(null)} />}
       {modal === 'posts' && client && (
         <PostsModal
